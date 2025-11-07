@@ -41,12 +41,26 @@ const Double_t sigma_MG [9] = {0.1359855, 0.1188306, 0.1641728379,   2.65558E-01
 //const Double_t sigma_MG [9] = {1.80681E-01}, //1.3 TeV (pb) 2-dim signals (TR and TI)
 //const Double_t sigma_MG [9] = {6.14823E-01}, //3.4 TeV (pb)  2-dim signals (TR and TI)
 Double_t            sigma;
-Double_t            sigma_pre;
+//Double_t            sigma_pre;
 Double_t            N_total;
 Double_t            N_accepted;
-Double_t            N_accepted_pre;
-Double_t            efficiency_pre;
+//Double_t            N_accepted_pre;
+//Double_t            efficiency_pre;
 Double_t            efficiency;
+
+// Arrays for groups
+int N_accepted_group[6] = {0};   // 0=hz,1=tt,2=ww,3=zz,4=jets, 5=others
+int N_total_group[6] = {0};
+Double_t sigma_MG_group [6] = {1, // bkg_hz
+                                 1,         // bkg_tt
+                                 1,                    // bkg_ww
+                                 1,                        // bkg_zz
+                                 1,                    // bkg_jets
+                                 1.0};                                       // others (signal)
+
+TString group_name[8] = {"bkg_hz", "bkg_ll", "bkg_tautau ", "bkg_ww", "bkg_zz", "bkg_tt", "bkg_za", "bkg_jets"};
+int group = 0;
+
 
 //char *samplename[] = {"xtar", "tbr13TeV"};
 //vector  <TString> name = {xtar, tbr13TeV, xtr, xtai, tbi13TeV, xti, ep2bbjvbkg1, ep2ccjvbkg2, ep2vjz2bbbkg3, ep2vjz2ccbkg4, ep2vjz2jjbkg5, ep2jt2w2jjbkg6, ep2vjh2bbSMbkg7};
@@ -62,12 +76,13 @@ TFile *f;
 
 void SG1plots(){ // jets == 2 (no tau-tagged jets) 
 
+
 //======================================================= sample loop
 
     //for (int r = 0; r < 18; r++)
-    for (int r = 1; r < 18; r++)
+    for (int r = 1; r < 18; r++) { // r: sample number
 
-    {
+    
         cout << endl << "sample " << r << ": " << endl;
 
         hjet1_pt[r] = new TH1F("hjet1_pt","", 17, 0 ,340);
@@ -107,8 +122,6 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
         hdeltaphi_jets[r]->SetDirectory(0);
         hdeltaR_jets[r]->SetDirectory(0);
         hcos_jets[r]->SetDirectory(0);
-
-
         hjetmultiplicity[r]->SetDirectory(0);
 
         if (r==0)  f = new TFile("sig1.root","READ");
@@ -134,6 +147,7 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
         if (r==14) f = new TFile("/cmsdata4/haghighat/axion/MG5_aMC_v2_6_7/t_background/Events/bkg_tt4.root","READ");
 
         if (r==15) f = new TFile("/cmsdata4/haghighat/axion/MG5_aMC_v2_6_7/za_background/Events/bkg_za.root","READ");
+       
         if (r==16) f = new TFile("/cmsdata4/haghighat/axion/MG5_aMC_v2_6_7/bkg_jets/bkg_jets1.root","READ");
         if (r==17) f = new TFile("/cmsdata4/haghighat/axion/MG5_aMC_v2_6_7/bkg_jets/bkg_jets2.root","READ");
 
@@ -182,12 +196,12 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
 
 //======================================================= event loop
         N_accepted = 0;
-        N_accepted_pre = 0;
+        //N_accepted_pre = 0;
 
         //for (int i = 0; i < my.fChain->GetEntriesFast(); i++) {
-        for (int i = 0; i<10000; i++) {
+        for (int i = 0; i<1000; i++) { // i: event number
 
-            if (i%1000000 == 0) std::cout << "sample number " << r << ": ---------- ... Processing event: " << i << std::endl;
+            if (i%200 == 0) std::cout << "sample number " << r << ": ---------- ... Processing event: " << i << std::endl;
                    
             my.GetEntry(i);
 
@@ -214,11 +228,9 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
 //======================================= event selection =============================================
 
             if (jet.size() == 2 &&
-                //jet.at(0) != jet.at(0) &&
-                //jet.at(1) != jet.at(0) &&
                 jet.at(0).DeltaR(jet.at(1)) > 0.5)
             {
-                N_accepted_pre++;
+                //N_accepted_pre++;
 
                 //if (jet[0].Pt() < jet[1].Pt())     swap(jet[0], jet[1]);
 
@@ -237,7 +249,6 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
                 deltaR_jets = jet.at(0).DeltaR(jet.at(1));
 
                 //jetmultiplicity = my.Jet_size;
-                //jetmultiplicity = jet.size();
                 jetmultiplicity = jet.size();
 
                 jet1_Pvec = jet[0].Vect();
@@ -293,7 +304,7 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
 //if (MET > 20.0) {
 
                 hjet1_pt[r]->Fill(jet1_pt); 
-                hjet2_pt[r]->Fill(jet2_pt); 
+                hjet2_pt[r]->Fill(jet2_pt);
 
                 hjet1_eta[r]->Fill(jet1_eta); 
                 hjet2_eta[r]->Fill(jet2_eta); 
@@ -318,7 +329,6 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
                 //if (MET > 0.0 && HT > 0.0 && jetsInvariantMass > 0.0)
                  {
                     N_accepted++;
-
                  } 
 
             } //======================================= event selection 
@@ -328,44 +338,54 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
         } //======================================================= event loop
 
 //============================================================ calculation of sigma and efficiency :
-                 cout << "\n";
-     if(r == 0)  cout << "For SG1:\n" << endl;
-     if(r == 1)  cout << "For bkg_hz1:\n" << endl;
-     if(r == 2)  cout << "For bkg_hz2:\n" << endl;
-     if(r == 3)  cout << "For bkg_hz3:\n" << endl;
-     if(r == 4)  cout << "For bkg_hz4:\n" << endl;
-     if(r == 5)  cout << "For bkg_ll:\n" << endl;
-     if(r == 6)  cout << "For bkg_tautau:\n" << endl;
-     if(r == 7)  cout << "For bkg_ww1:\n" << endl;
-     if(r == 8)  cout << "For bkg_ww2:\n" << endl;
-     if(r == 9)  cout << "For bkg_zz1:\n" << endl;
-     if(r == 10)  cout << "For bkg_zz2:\n" << endl;
-     if(r == 11)  cout << "For bkg_tt1:\n" << endl;
-     if(r == 12)  cout << "For bkg_tt2:\n" << endl;
-     if(r == 13)  cout << "For bkg_tt3:\n" << endl;
-     if(r == 14)  cout << "For bkg_tt4:\n" << endl;
-     if(r == 15)  cout << "For bkg_za:\n" << endl;
 
-    efficiency_pre = N_accepted_pre / my.fChain->GetEntriesFast();
-    efficiency = N_accepted / my.fChain->GetEntriesFast();
 
-    sigma_pre = efficiency_pre * sigma_MG [r] * 1000; //fb 
-    sigma = efficiency * sigma_MG [r] * 1000; //fb 
+// Decide which group the current sample belongs to
+if(r>=1 && r<=4) group=0;   // bkg_hz1-4
+if(r==5) group=1;           // bkg_ll
+if(r==6) group=2;           // bkg_tautau
+if(r==7 || r==8) group=3;   // bkg_ww1-2
+if(r==9 || r==10) group=4;  // bkg_zz1-2
+if(r>=11 && r<=14) group=5; // bkg_tt1-4
+if(r==15) group=6;           // bkg_za
+if(r==16 || r==17) group=7; // bkg_jets1-2
 
-    cout << "N_total = " << my.fChain->GetEntriesFast() << endl;
+N_accepted_group[group] += N_accepted;
+N_total_group[group]    += my.fChain->GetEntriesFast();
 
-    cout << "N_accepted_pre = " << N_accepted_pre << endl;
-    cout << "N_accepted = " << N_accepted << endl;
+//cout << "test1" << endl;
+} //======================================================= sample loop
 
-    cout << "efficiency_pre = " << efficiency_pre << endl;
-    cout << "efficiency = " << efficiency << endl;
+////cout << "test2" << endl;
 
-    cout << "sigma_MG = " << sigma_MG [r] << " fb" << endl; //fb 
-    cout << "sigma_pre = " << sigma_pre << " fb" << endl; //fb 
-    cout << "sigma = " << sigma << " fb" << endl; //fb 
 
-  } //======================================================= sample loop
+for(int g=0; g<8; g++) {
 
+//cout << "test2 = " << g << endl;
+
+    double eff_combined = (double)N_accepted_group[g] / N_total_group[g];
+    double sigma_combined = eff_combined * sigma_MG_group[g] * 1000; // fb
+
+    cout << "\n N_total for "<< group_name[g] << " = " << N_total_group[g] <<  endl;
+    cout << "N_accepted for "<< group_name[g] << " = " << N_accepted_group[g] <<  endl;
+    cout << "efficiency for " << group_name[g] << " = " << eff_combined << endl;
+    cout << "sigma = " << sigma_combined << " fb ===" << endl;
+}
+
+    // sigma_pre = efficiency_pre * sigma_MG [r] * 1000; //fb 
+    // sigma = efficiency * sigma_MG [r] * 1000; //fb 
+
+    // cout << "N_total = " << my.fChain->GetEntriesFast() << endl;
+
+    // cout << "N_accepted_pre = " << N_accepted_pre << endl;
+    // cout << "N_accepted = " << N_accepted << endl;
+
+    // cout << "efficiency_pre = " << efficiency_pre << endl;
+    // cout << "efficiency = " << efficiency << endl;
+
+    // cout << "sigma_MG = " << sigma_MG [r] << " fb" << endl; //fb 
+    // cout << "sigma_pre = " << sigma_pre << " fb" << endl; //fb 
+    // cout << "sigma = " << sigma << " fb" << endl; //fb 
 
 
 //     //======================================= Draw histograms
@@ -403,7 +423,7 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
 //     gStyle->SetLineStyleString(12,"150 15");
 //     gStyle->SetLineStyleString(13,"200 15");
 
-//     for (int r = 0; r < 9; r++) // other loop over samples
+//     for (int r = 0; r < 18; r++) // other loop over samples
 //     {
 
 //         hjet1_pt[r]->Scale(1 /(hjet1_pt[r]->Integral())); 
@@ -1985,7 +2005,7 @@ cout << "=================================" << endl;
 cout << "============= Finish ============" << endl;
 cout << "=================================" << endl;
 
-}//======================================================= analysis function
+}//======================================================= SG scope
 
 
 

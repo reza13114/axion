@@ -199,7 +199,7 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
         //N_accepted_pre = 0;
 
         //for (int i = 0; i < my.fChain->GetEntriesFast(); i++) {
-        for (int i = 0; i<1000; i++) { // i: event number
+        for (int i = 0; i<10000; i++) { // i: event number
 
             if (i%200 == 0) std::cout << "sample number " << r << ": ---------- ... Processing event: " << i << std::endl;
                    
@@ -227,35 +227,121 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
           }
 //======================================= event selection =============================================
 
-            if (jet.size() == 2 &&
-                jet.at(0).DeltaR(jet.at(1)) > 0.5)
+/*
+            if (jet.size() == 6 &&
+                jet.at(0).DeltaR(jet.at(1)) > 0.5 &&
+                jet.at(0).DeltaR(jet.at(2)) > 0.5 &&
+                jet.at(0).DeltaR(jet.at(3)) > 0.5 &&
+                jet.at(0).DeltaR(jet.at(4)) > 0.5 &&
+                jet.at(0).DeltaR(jet.at(5)) > 0.5 &&
+                jet.at(1).DeltaR(jet.at(2)) > 0.5 &&
+                jet.at(1).DeltaR(jet.at(3)) > 0.5 &&
+                jet.at(1).DeltaR(jet.at(4)) > 0.5 &&
+                jet.at(1).DeltaR(jet.at(5)) > 0.5 &&
+                jet.at(2).DeltaR(jet.at(3)) > 0.5 &&
+                jet.at(2).DeltaR(jet.at(4)) > 0.5 &&
+                jet.at(2).DeltaR(jet.at(5)) > 0.5 &&
+                jet.at(3).DeltaR(jet.at(4)) > 0.5 &&
+                jet.at(3).DeltaR(jet.at(5)) > 0.5 &&
+                jet.at(4).DeltaR(jet.at(5)) > 0.5)
+
             {
+*/
+
+				bool jetsAreIsolated = true;
+
+				if (jet.size() == 6) {
+								for (int i = 0; i < 6; i++) {
+												for (int j = i + 1; j < 6; j++) {
+																if (jet.at(i).DeltaR(jet.at(j)) <= 0.5) {
+																				jetsAreIsolated = false;
+																				break;
+																}
+												}
+												if (!jetsAreIsolated) break;
+								}
+				}
+
+				if (jetsAreIsolated) {
+								// continue your code here
+				
+
                 //N_accepted_pre++;
 
                 //if (jet[0].Pt() < jet[1].Pt())     swap(jet[0], jet[1]);
 
-                jet1_pt = jet[0].Pt();
-                jet2_pt = jet[1].Pt(); 
+                Double_t jet_pt[6], jet_eta[6];
 
-                jet1_eta = jet[0].Eta();
-                jet2_eta = jet[1].Eta(); 
+                for (int j = 0; j < 6; j++) { // jet[0] is for jet #1
+                    jet_pt[j]  = jet[j].Pt();
+                    jet_eta[j] = jet[j].Eta();
+                }
 
-                jetsInvariantMass = (jet.at(0) + jet.at(1)).M();
+                jetsInvariantMass = (jet[0] + jet[1] + jet[2] + jet[3] + jet[4] + jet[5]).M();
+                HT = jet[0].Pt() + jet[1].Pt() + jet[2].Pt() + jet[3].Pt() + jet[4].Pt() + jet[5].Pt();
                 MET = my.MissingET_MET[0];
-                HT = jet[0].Pt() + jet[0].Pt();
+                jetmultiplicity = jet.size();
+                //jetmultiplicity = my.Jet_size;
+
+
+//---------------------------------------------------------------------------------------------
+				double deltaEta[6][6];
+				double deltaPhi[6][6];
+				double deltaR[6][6];
+
+				for (int i = 0; i < 6; i++) {
+								for (int j = i + 1; j < 6; j++) {
+												deltaEta[i][j] = jet[i].Eta() - jet[j].Eta();
+												deltaPhi[i][j] = jet[i].Phi() - jet[j].Phi();
+												deltaR[i][j]   = jet[i].DeltaR(jet[j]);
+								}
+				}
+
+//---------------------------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------------------------
+				TVector3 jet_Pvec[6];
+				double   jet_P[6];
+
+				for (int i = 0; i < 6; i++) {
+								jet_Pvec[i] = jet[i].Vect();
+								jet_P[i]    = jet_Pvec[i].Mag();
+				}
+
+//---------------------------------------------------------------------------------------------
+				double cos_jets[6][6];
+				double beta[6][6];
+
+				for (int i = 0; i < 6; i++) {
+								for (int j = i + 1; j < 6; j++) {
+												double dot  = jet_Pvec[i].Dot(jet_Pvec[j]);
+												double mags = jet_P[i] * jet_P[j];
+												
+												cos_jets[i][j] = dot / mags;
+												cos_jets[j][i] = cos_jets[i][j];   // symmetric
+												
+												beta[i][j] = acos(cos_jets[i][j]);
+												beta[j][i] = beta[i][j];           // symmetric
+								}
+				}
+//---------------------------------------------------------------------------------------------
+
+
+
+
+/*
 
                 deltaeta_jets = jet[0].Eta() - jet[1].Eta();
                 deltaphi_jets = jet[0].Phi() - jet[1].Phi();
                 deltaR_jets = jet.at(0).DeltaR(jet.at(1));
 
-                //jetmultiplicity = my.Jet_size;
-                jetmultiplicity = jet.size();
-
                 jet1_Pvec = jet[0].Vect();
                 jet2_Pvec = jet[1].Vect(); 
                 jet1_P = jet1_Pvec.Mag();
                 jet2_P = jet2_Pvec.Mag(); 
-/*
+
 		beta1 = acos(( jet[0].Px()*jet[1].Px() +
 			       jet[0].Py()*jet[1].Py() + 
 			       jet[0].Pz()*jet[1].Pz()  )/(
@@ -265,6 +351,8 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
 			  sqrt(jet[1].Px()*jet[1].Px() + 
 			       jet[1].Py()*jet[1].Py() + 
 			       jet[1].Pz()*jet[1].Pz()) ));
+
+        cos_jets = (jet1_Pvec.Dot(jet2_Pvec)) / (jet1_Pvec.Mag() * jet2_Pvec.Mag());
 
 		beta2 = acos( (jet_Pvec.Dot(jet2_Pvec)) / (jet_Pvec.Mag() * jet2_Pvec.Mag()) );
 */
@@ -277,8 +365,6 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
 		//cout << "alpha = " << alpha << endl;
 		// OLD: alphaZMF = acos ((jet_PvecZMF.Dot(jet2_PvecZMF)) / (jet_PvecZMF.Mag() * jet2_PvecZMF.Mag())); // in zero mumentum frame (ZMF)
 		//cout << "alphaZMF = " << alphaZMF << endl;
-
-                cos_jets = (jet1_Pvec.Dot(jet2_Pvec)) / (jet1_Pvec.Mag() * jet2_Pvec.Mag());
 
 	//--------------inputs for alphaZMF:
 		// double mass_1 = 125.0;
@@ -302,7 +388,7 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
                  //======================================= Fill histograms
 
 //if (MET > 20.0) {
-
+/*
                 hjet1_pt[r]->Fill(jet1_pt); 
                 hjet2_pt[r]->Fill(jet2_pt);
 
@@ -322,6 +408,7 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
                 hcos_jets[r]->Fill(cos_jets); 
 
                 hjetmultiplicity[r]->Fill(jetmultiplicity); 
+*/
 //}
 
                   //======================================= final cuts

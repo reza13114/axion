@@ -155,10 +155,7 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
         TTree *tree_sample;
         f->GetObject("Delphes",tree_sample);   // Get objects from root file
         myclass     my(tree_sample);   // Define an object for Getting Entries
- /*
-        TTree *tree_sample = (TTree*) f->Get( "Delphes" );
-        myclass my(tree_sample);
-  */ 
+
         TLorentzVector                   jet_4v;
         vector <TLorentzVector>          jet;
 
@@ -226,27 +223,6 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
                 // }
           }
 //======================================= event selection =============================================
-
-/*
-            if (jet.size() == 6 &&
-                jet.at(0).DeltaR(jet.at(1)) > 0.5 &&
-                jet.at(0).DeltaR(jet.at(2)) > 0.5 &&
-                jet.at(0).DeltaR(jet.at(3)) > 0.5 &&
-                jet.at(0).DeltaR(jet.at(4)) > 0.5 &&
-                jet.at(0).DeltaR(jet.at(5)) > 0.5 &&
-                jet.at(1).DeltaR(jet.at(2)) > 0.5 &&
-                jet.at(1).DeltaR(jet.at(3)) > 0.5 &&
-                jet.at(1).DeltaR(jet.at(4)) > 0.5 &&
-                jet.at(1).DeltaR(jet.at(5)) > 0.5 &&
-                jet.at(2).DeltaR(jet.at(3)) > 0.5 &&
-                jet.at(2).DeltaR(jet.at(4)) > 0.5 &&
-                jet.at(2).DeltaR(jet.at(5)) > 0.5 &&
-                jet.at(3).DeltaR(jet.at(4)) > 0.5 &&
-                jet.at(3).DeltaR(jet.at(5)) > 0.5 &&
-                jet.at(4).DeltaR(jet.at(5)) > 0.5)
-
-            {
-*/
 
 				bool jetsAreIsolated = true;
 
@@ -327,64 +303,6 @@ void SG1plots(){ // jets == 2 (no tau-tagged jets)
 								}
 				}
 //---------------------------------------------------------------------------------------------
-
-
-
-
-/*
-
-                deltaeta_jets = jet[0].Eta() - jet[1].Eta();
-                deltaphi_jets = jet[0].Phi() - jet[1].Phi();
-                deltaR_jets = jet.at(0).DeltaR(jet.at(1));
-
-                jet1_Pvec = jet[0].Vect();
-                jet2_Pvec = jet[1].Vect(); 
-                jet1_P = jet1_Pvec.Mag();
-                jet2_P = jet2_Pvec.Mag(); 
-
-		beta1 = acos(( jet[0].Px()*jet[1].Px() +
-			       jet[0].Py()*jet[1].Py() + 
-			       jet[0].Pz()*jet[1].Pz()  )/(
-			  sqrt(jet[0].Px()*jet[0].Px() +
-			       jet[0].Py()*jet[0].Py() + 
-			       jet[0].Pz()*jet[0].Pz())*
-			  sqrt(jet[1].Px()*jet[1].Px() + 
-			       jet[1].Py()*jet[1].Py() + 
-			       jet[1].Pz()*jet[1].Pz()) ));
-
-        cos_jets = (jet1_Pvec.Dot(jet2_Pvec)) / (jet1_Pvec.Mag() * jet2_Pvec.Mag());
-
-		beta2 = acos( (jet_Pvec.Dot(jet2_Pvec)) / (jet_Pvec.Mag() * jet2_Pvec.Mag()) );
-*/
-		//alpha = jet_Pvec.Angle(jet2_Pvec); // in lab frame 
-		
-//cout << "alpha = " << alpha << " vs " << beta1 << " vs " << beta2 << endl;
-
-		// alpha_jet1b1 = jet_Pvec.Angle(jet1_Pvec); // in lab frame 
-		// alpha_jet1b2 = jet1_Pvec.Angle(jet2_Pvec); // in lab frame 
-		//cout << "alpha = " << alpha << endl;
-		// OLD: alphaZMF = acos ((jet_PvecZMF.Dot(jet2_PvecZMF)) / (jet_PvecZMF.Mag() * jet2_PvecZMF.Mag())); // in zero mumentum frame (ZMF)
-		//cout << "alphaZMF = " << alphaZMF << endl;
-
-	//--------------inputs for alphaZMF:
-		// double mass_1 = 125.0;
-		// double Px_1 = jet[0].Px()+jet[1].Px();
-		// double Py_1 = jet[0].Py()+jet[1].Py();
-		// double Pz_1 = jet[0].Pz()+jet[1].Pz();
-
-		// double mass_2 = 4.70;
-		// double Px_2 = jet[0].Px();
-		// double Py_2 = jet[0].Py();
-		// double Pz_2 = jet[0].Pz();
-
-		// double mass_3 = 4.70;
-		// //double mass_3 = jet[1].M(); or Mass();
-		// double Px_3 = jet[1].Px();
-		// double Py_3 = jet[1].Py();
-		// double Pz_3 = jet[1].Pz();
-
-		// alphaZMF = angleinPRF(mass_1, Px_1, Py_1, Pz_1, mass_2, Px_2, Py_2, Pz_2, mass_3, Px_3, Py_3, Pz_3);
-
                  //======================================= Fill histograms
 
 //if (MET > 20.0) {

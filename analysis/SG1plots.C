@@ -74,7 +74,7 @@ TFile *f;
 
 //----------------------------------------------------- END 
 
-void SG1plots1(){ // jets == 2 (no tau-tagged jets) 
+void SG1plots(){ // jets == 2 (no tau-tagged jets) 
 
 
 //======================================================= sample loop

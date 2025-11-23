@@ -74,13 +74,13 @@ TFile *f;
 
 //----------------------------------------------------- END 
 
-void SG1plots(){ // jets == 2 (no tau-tagged jets) 
+void SG1plots1(){ // jets == 2 (no tau-tagged jets) 
 
 
 //======================================================= sample loop
 
     //for (int r = 0; r < 18; r++)
-    for (int r = 1; r < 18; r++) { // r: sample number
+    for (int r = 11; r < 16; r++) { // r: sample number
 
     
         cout << endl << "sample " << r << ": " << endl;
@@ -362,6 +362,9 @@ N_total_group[group]    += my.fChain->GetEntriesFast();
 for(int g=0; g<8; g++) {
 
 //cout << "test2 = " << g << endl;
+ //if (g != group) continue; 
+    if (N_total_group[g] == 0) continue;
+
 
     double eff_combined = (double)N_accepted_group[g] / N_total_group[g];
     double sigma_combined = eff_combined * sigma_MG_group[g] * 1000; // fb
